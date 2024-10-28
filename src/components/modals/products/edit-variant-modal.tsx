@@ -8,8 +8,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FC } from "react";
-import { EditVariantForm } from "../edit-variant-form";
 import { Variant } from "@/lib/db";
+import { EditVariantForm } from "@/components/forms/products/edit-variant-form";
 
 interface EditVariantModalProps {
   variant: Variant;

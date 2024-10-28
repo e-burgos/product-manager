@@ -7,9 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditProductForm } from "../edit-product-form";
-import { Product } from "@/hooks/use-data";
 import { FC } from "react";
+import { Product } from "@/lib/db";
+import { EditProductForm } from "@/components/forms/products/edit-product-form";
 
 interface EditProductModalProps {
   product: Product;

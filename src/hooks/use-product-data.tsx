@@ -1,19 +1,10 @@
-import { db, Variant } from "@/lib/db";
+import { db, Products } from "@/lib/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import * as XLSX from "xlsx";
 import { useToast } from "./use-toast";
+import { formatCurrency } from "@/lib/utils";
 
-export interface Product {
-  variants: Variant[];
-  totalAmount: number;
-  id?: number;
-  title: string;
-  description: string;
-}
-
-export type Products = Product[] | undefined;
-
-const useData = () => {
+const useProductData = () => {
   const { toast } = useToast();
 
   const products: Products = useLiveQuery(async () => {
@@ -24,10 +15,7 @@ const useData = () => {
           .where("productId")
           .equals(product.id!)
           .toArray();
-        const totalAmount = variants.reduce(
-          (sum, variant) => sum + variant.amount,
-          0
-        );
+        const totalAmount = variants?.length;
         return {
           ...product,
           variants,
@@ -38,6 +26,11 @@ const useData = () => {
     return productsWithVariants;
   });
 
+  const variants = useLiveQuery(() => db.variants.toArray());
+
+  const getProductVariants = (productId: number | undefined) =>
+    variants?.filter((v) => v.productId === productId);
+
   const exportToExcel = () => {
     if (!products) return;
 
@@ -46,19 +39,12 @@ const useData = () => {
       products.map((product) => ({
         Producto: product.title,
         Descripción: product.description,
-        "Monto Total": product.totalAmount,
-        Variantes: product.variants
-          .map(
-            (v) =>
-              `${v.title} (${new Intl.NumberFormat("es-AR", {
-                style: "currency",
-                currency: "ARS",
-              }).format(v.amount)})`
-          )
+        Variantes: product.totalAmount,
+        "Detalles de Variantes": getProductVariants(product.id)
+          ?.map((v) => `${formatCurrency(v.amount)})`)
           .join(", "),
       }))
     );
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
     XLSX.writeFile(workbook, "productos.xlsx");
   };
@@ -74,14 +60,10 @@ const useData = () => {
           }\nTotal: ${new Intl.NumberFormat("es-AR", {
             style: "currency",
             currency: "ARS",
-          }).format(product.totalAmount || 0)}\n\nVariantes:\n${product.variants
-            .map(
-              (v) =>
-                `- ${v.title}: ${new Intl.NumberFormat("es-AR", {
-                  style: "currency",
-                  currency: "ARS",
-                }).format(v.amount)}`
-            )
+          }).format(
+            product.totalAmount || 0
+          )}\n\nVariantes:\n${getProductVariants(product.id)
+            ?.map((v) => `- ${v.title}: ${formatCurrency(v.amount)}`)
             .join("\n")}\n\n`
       )
       .join("---\n\n");
@@ -108,4 +90,4 @@ const useData = () => {
   };
 };
 
-export default useData;
+export default useProductData;

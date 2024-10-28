@@ -1,9 +1,8 @@
-import { Product } from "@/hooks/use-data";
 import React from "react";
-import { Button } from "../ui/button";
-import { db } from "@/lib/db";
+import { db, Product } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DeleteProductProps {
   product: Product;

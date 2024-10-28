@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,8 +12,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/db";
+import { useToast } from "@/hooks/use-toast";
+import { DialogClose } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -23,7 +23,7 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-export function EditProductForm({ productId }: { productId: number }) {
+export function BudgetForm() {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -33,33 +33,22 @@ export function EditProductForm({ productId }: { productId: number }) {
     },
   });
 
-  useEffect(() => {
-    async function loadProduct() {
-      const product = await db.products.get(productId);
-      if (product) {
-        form.reset({
-          title: product.title,
-          description: product.description,
-        });
-      }
-    }
-    loadProduct();
-  }, [productId, form]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await db.products.update(productId, {
+      await db.budgets.add({
         title: values.title,
         description: values.description,
       });
+      form.reset();
       toast({
-        title: "Producto actualizado",
-        description: "El producto se ha actualizado correctamente.",
+        title: "Presupuesto creado",
+        description: "El presupuesto se ha creado correctamente.",
       });
     } catch {
       toast({
+        variant: "destructive",
         title: "Error",
-        description: "Hubo un error al actualizar el producto.",
+        description: "No se pudo crear el presupuesto.",
       });
     }
   }
@@ -74,7 +63,7 @@ export function EditProductForm({ productId }: { productId: number }) {
             <FormItem>
               <FormLabel>Título</FormLabel>
               <FormControl>
-                <Input placeholder="Nombre del producto" {...field} />
+                <Input placeholder="Nombre del presupuesto" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,13 +76,18 @@ export function EditProductForm({ productId }: { productId: number }) {
             <FormItem>
               <FormLabel>Descripción</FormLabel>
               <FormControl>
-                <Textarea placeholder="Descripción del producto" {...field} />
+                <Textarea
+                  placeholder="Descripción del presupuesto"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Actualizar Producto</Button>
+        <DialogClose asChild>
+          <Button type="submit">Crear</Button>
+        </DialogClose>
       </form>
     </Form>
   );

@@ -19,19 +19,19 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Fragment, useState } from "react";
-import { Tag } from "lucide-react";
-import { Variant } from "@/lib/db";
-import EditVariantModal from "./modals/edit-variant-modal";
-import DeleteVariant from "./modals/delete-variant";
+import ProductVariants from "./expanded-components/product-variants";
+import BudgetDetails from "./expanded-components/budget-details";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  type: "product" | "budget";
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  type,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [expanded, setExpanded] = useState({});
@@ -93,40 +93,14 @@ export function DataTable<TData, TValue>({
                   {row.getIsExpanded() && (
                     <TableRow>
                       <TableCell colSpan={columns.length}>
-                        <div className="p-4 bg-muted/50 rounded-md">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Tag className="h-4 w-4" />
-                            <h4 className="font-medium">Variantes</h4>
-                          </div>
-                          <div className="space-y-2">
-                            {/* @ts-ignore */}
-                            {row.original?.variants?.map((variant: Variant) => (
-                              <div
-                                key={variant.id}
-                                className="grid grid-cols-4 gap-4 p-2 bg-background -rounded-md"
-                              >
-                                <div>
-                                  <span className="font-medium">
-                                    {variant.title}
-                                  </span>
-                                </div>
-                                <div className="text-muted-foreground">
-                                  {variant.description}
-                                </div>
-                                <div className="text-right">
-                                  {new Intl.NumberFormat("es-AR", {
-                                    style: "currency",
-                                    currency: "ARS",
-                                  }).format(variant.amount)}
-                                </div>
-                                <div className="text-right">
-                                  <DeleteVariant variant={variant} />
-                                  <EditVariantModal variant={variant} />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                        {type === "product" && (
+                          //@ts-ignore
+                          <ProductVariants productId={row.original?.id} />
+                        )}
+                        {type === "budget" && (
+                          //@ts-ignore
+                          <BudgetDetails budgetId={row.original?.id} />
+                        )}
                       </TableCell>
                     </TableRow>
                   )}

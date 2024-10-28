@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, ChevronRight, Package } from "lucide-react";
-import { Product } from "./use-data";
-import EditProductModal from "@/components/modals/edit-product-modal";
-import DeleteProduct from "@/components/modals/delete-product";
+import { Product } from "@/lib/db";
+import DeleteProduct from "@/components/modals/products/delete-product";
+import EditProductModal from "@/components/modals/products/edit-product-modal";
 
-const useColumns = () => {
+const useProductColumns = () => {
   const columns: ColumnDef<Product>[] = [
     {
       accessorKey: "expanded",
@@ -34,7 +34,7 @@ const useColumns = () => {
         return (
           <div className="flex items-center gap-2">
             <Package className="h-4 w-4 text-muted-foreground" />
-            <span>{row.getValue("title")}</span>
+            <span>{row.getValue("title") || "-"}</span>
           </div>
         );
       },
@@ -42,17 +42,20 @@ const useColumns = () => {
     {
       accessorKey: "description",
       header: "Descripción",
+      size: 400,
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <span>{row.getValue("description") || "-"}</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "totalAmount",
-      header: "Monto Total",
+      header: "Variantes",
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("totalAmount"));
-        const formatted = new Intl.NumberFormat("es-AR", {
-          style: "currency",
-          currency: "ARS",
-        }).format(amount);
-        return formatted;
+        return row.getValue("totalAmount") || 0;
       },
     },
     {
@@ -73,4 +76,4 @@ const useColumns = () => {
   return { columns };
 };
 
-export default useColumns;
+export default useProductColumns;

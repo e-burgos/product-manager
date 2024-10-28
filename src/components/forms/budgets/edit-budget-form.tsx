@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { db } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import { DialogClose } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -22,7 +24,7 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-export function ProductForm() {
+export function EditBudgetForm({ budgetId }: { budgetId: number }) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,22 +34,35 @@ export function ProductForm() {
     },
   });
 
+  useEffect(() => {
+    async function loadBudgets() {
+      const budget = await db.budgets.get(budgetId);
+      if (budget) {
+        form.reset({
+          title: budget.title,
+          description: budget.description,
+        });
+      }
+    }
+    loadBudgets();
+  }, [budgetId, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await db.products.add({
+      await db.budgets.update(budgetId, {
         title: values.title,
         description: values.description,
       });
       form.reset();
       toast({
-        title: "Producto creado",
-        description: "El producto se ha creado correctamente.",
+        title: "Presupuesto actualizado",
+        description: "El presupuesto se ha actualizado correctamente.",
       });
     } catch {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo crear el producto.",
+        description: "No se pudo actualizar el presupuesto.",
       });
     }
   }
@@ -62,7 +77,7 @@ export function ProductForm() {
             <FormItem>
               <FormLabel>Título</FormLabel>
               <FormControl>
-                <Input placeholder="Nombre del producto" {...field} />
+                <Input placeholder="Nombre del presupuesto" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -75,13 +90,18 @@ export function ProductForm() {
             <FormItem>
               <FormLabel>Descripción</FormLabel>
               <FormControl>
-                <Textarea placeholder="Descripción del producto" {...field} />
+                <Textarea
+                  placeholder="Descripción del presupuesto"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Crear Producto</Button>
+        <DialogClose asChild>
+          <Button type="submit">Actualizar</Button>
+        </DialogClose>
       </form>
     </Form>
   );

@@ -1,8 +1,8 @@
 import React from "react";
-import { Button } from "../ui/button";
 import { db, Variant } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DeleteVariantProps {
   variant: Variant;

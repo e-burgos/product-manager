@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ProductForm } from "@/components/product-form";
-import { VariantForm } from "@/components/variant-form";
+import { ProductForm } from "@/components/forms/products/product-form";
+import { VariantForm } from "@/components/forms/products/variant-form";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -11,21 +11,21 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const AddModal = () => {
+const AddProductModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant={"outline"}>
           <Plus className="h-4 w-4 mr-2" />
           Agregar
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Agregar Nuevo</DialogTitle>
+          <DialogTitle>Nuevo Producto</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="product" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 mt-4">
             <TabsTrigger value="product">Producto</TabsTrigger>
             <TabsTrigger value="variant">Variante</TabsTrigger>
           </TabsList>
@@ -41,4 +41,4 @@ const AddModal = () => {
   );
 };
 
-export default AddModal;
+export default AddProductModal;
